@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>simul8r4brokahmf — Learn to Code with Bro KAHMF</title>
+<style>
+  /* ═══════════════════════════════════════════════════════════════════
+     RESET + VARIABLES
+     ═══════════════════════════════════════════════════════════════════ */
+  :root {
+    --bg: #0d0d1a;
+    --bg2: #14142a;
+    --bg3: #1a1a3a;
+    --bg4: #22224a;
+    --text: #e0e0f0;
+    --text2: #aaaacc;
+    --text3: #8888aa;
+    --accent: #b388ff;
+    --accent2: #6a4ac0;
+    --accent3: #4a8aff;
+    --green: #4caf50;
+    --red: #e53935;
+    --orange: #ffb74d;
+    --gold: #ffd54f;
+    --cyan: #4dd0e1;
+    --radius: 10px;
+    --font-size: 14px;
+    --transition: 0.2s;
+  }
+  [data-theme="highcontrast"] {
+    --bg: #000;
+    --bg2: #111;
+    --bg3: #222;
+    --bg4: #333;
+    --text: #fff;
+    --text2: #ddd;
+    --text3: #bbb;
+    --accent: #ff0;
+    --accent2: #ff0;
+    --accent3: #0ff;
+    --green: #0f0;
+    --red: #f00;
+    --orange: #ff0;
+    --gold: #ff0;
+  }
+  [data-theme="light"] {
+    --bg: #f5f0ff;
+    --bg2: #fff;
+    --bg3: #f0eaff;
+    --bg4: #e0d6f5;
+    --text: #1a1a2e;
+    --text2: #444;
+    --text3: #666;
+    --accent: #6a4ac0;
+    --accent2: #6a4ac0;
+    --accent3: #4a8aff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--font-size); }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    transition: background var(--transition), color var(--transition);
+  }
+  [data-reduce-motion="true"] *, [data-reduce-motion="true"] *::before, [data-reduce-motion="true"] *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     HEADER — Player info + controls
+     ═══════════════════════════════════════════════════════════════════ */
+  header {
+    background: var(--bg2);
+    padding: 0.5rem 1rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    border-bottom: 2px solid var(--accent);
+    flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .logo {
+    font-size: 1.1rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    white-space: nowrap;
+  }
+  .logo small { font-size: 0.6rem; opacity: 0.6; -webkit-text-fill-color: var(--text2); }
+  .player-tag {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .player-tag .level-badge {
+    background: var(--accent2); color: #fff;
+    padding: 0.15rem 0.6rem; border-radius: 999px;
+    font-size: 0.7rem; font-weight: 700;
+  }
+  .player-tag .title-tag {
+    font-size: 0.75rem; color: var(--gold);
+  }
+  .streak-tag {
+    font-size: 0.75rem; color: var(--orange);
+    display: flex; align-items: center; gap: 0.2rem;
+  }
+  .xp-bar-container {
+    width: 120px; height: 6px;
+    background: var(--bg4); border-radius: 3px;
+    overflow: hidden;
+  }
+  .xp-bar {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 3px; transition: width 0.5s ease;
+    width: 0%;
+  }
+  header .ctrl-btn {
+    background: none; border: 1px solid var(--text3); color: var(--text2);
+    padding: 0.25rem 0.5rem; border-radius: 6px;
+    font-size: 0.7rem; cursor: pointer;
+  }
+  header .ctrl-btn:hover { background: var(--bg3); border-color: var(--accent); }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════════════════════════════ */
+  .container { display: flex; flex: 1; gap: 0; min-height: 0; }
+
+  /* ── Sidebar ──────────────────────────────────────────────────── */
+  .sidebar {
+    width: 280px; background: var(--bg2);
+    border-right: 1px solid var(--bg4);
+    flex-shrink: 0; overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar h2 {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text3); padding: 0.75rem 1rem 0.5rem;
+  }
+  .tab-bar {
+    display: flex; gap: 0; padding: 0 0.5rem 0.5rem;
+    overflow-x: auto; flex-wrap: wrap;
+  }
+  .tab-bar button {
+    background: none; border: none; color: var(--text3);
+    padding: 0.4rem 0.7rem; font-size: 0.72rem; cursor: pointer;
+    border-radius: 6px; white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .tab-bar button:hover { background: var(--bg3); color: var(--text); }
+  .tab-bar button.active { background: var(--accent2); color: #fff; }
+
+  .lesson-item {
+    padding: 0.6rem 1rem; cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .lesson-item:hover { background: var(--bg3); }
+  .lesson-item.active {
+    background: var(--bg3); border-left-color: var(--accent);
+  }
+  .lesson-item .li-type {
+    font-size: 0.6rem; background: var(--bg4);
+    padding: 0.1rem 0.35rem; border-radius: 4px;
+    color: var(--text3); text-transform: uppercase;
+  }
+  .lesson-item .li-title { font-size: 0.82rem; flex: 1; }
+  .lesson-item .li-status {
+    font-size: 0.65rem; width: 20px; height: 20px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--bg4); color: var(--text3); flex-shrink: 0;
+  }
+  .lesson-item .li-status.done { background: var(--green); color: #fff; }
+  .lesson-item .li-status.attempt { background: var(--orange); color: #000; }
+
+  /* ── Main content ───────────────────────────────────────────────── */
+  .main {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 1rem 1.5rem; min-width: 0; overflow-y: auto;
+  }
+  .lesson-header { margin-bottom: 0.75rem; }
+  .lesson-header h3 { font-size: 1.1rem; color: var(--accent); }
+  .lesson-header .track-tag {
+    font-size: 0.65rem; color: var(--text3);
+    margin-bottom: 0.25rem;
+  }
+  .lesson-header .desc {
+    font-size: 0.85rem; color: var(--text2);
+    margin-top: 0.35rem; line-height: 1.5; white-space: pre-wrap;
+  }
+  .lang-selector {
+    display: flex; gap: 0.4rem; margin: 0.5rem 0;
+    flex-wrap: wrap;
+  }
+  .lang-selector button {
+    padding: 0.25rem 0.7rem; border-radius: 6px; border: 1px solid var(--bg4);
+    background: var(--bg3); color: var(--text2); font-size: 0.75rem;
+    cursor: pointer;
+  }
+  .lang-selector button.active { border-color: var(--accent); color: var(--accent); background: var(--bg2); }
+  .lang-selector button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Editor ───────────────────────────────────────────────────── */
+  .editor-wrap { flex: 1; display: flex; flex-direction: column; min-height: 200px; }
+  .editor-wrap textarea {
+    flex: 1; background: #08081a; color: var(--text);
+    border: 1px solid var(--bg4); border-radius: var(--radius);
+    padding: 0.75rem 1rem; resize: none; outline: none;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: var(--font-size); line-height: 1.6; tab-size: 4;
+    min-height: 160px;
+  }
+  .editor-wrap textarea:focus { border-color: var(--accent); }
+  .actions {
+    display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;
+  }
+  .actions button {
+    padding: 0.5rem 1.2rem; border: none; border-radius: 6px;
+    font-weight: 600; font-size: 0.8rem; cursor: pointer;
+    transition: all 0.15s; display: flex; align-items: center; gap: 0.4rem;
+  }
+  .actions button:active { transform: scale(0.96); }
+  .actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-submit {
+    background: linear-gradient(135deg, var(--accent2), var(--accent3));
+    color: #fff;
+  }
+  .btn-submit:hover:not(:disabled) { filter: brightness(1.2); }
+  .btn-hint {
+    background: var(--bg3); color: var(--text2); border: 1px solid var(--bg4) !important;
+  }
+  .btn-hint:hover:not(:disabled) { background: var(--bg4); }
+  .btn-reset { background: var(--bg4); color: var(--text3); }
+  .btn-reset:hover { background: #3a2a3a; color: var(--red); }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     BRO MESSAGE
+     ═══════════════════════════════════════════════════════════════════ */
+  .bro-box {
+    margin-top: 0.5rem; background: var(--bg3);
+    border-left: 3px solid var(--accent);
+    padding: 0.6rem 1rem; border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 0.82rem; display: none;
+  }
+  .bro-box.visible { display: block; }
+  .bro-box .bro-label {
+    font-size: 0.65rem; color: var(--accent); font-weight: 700;
+    margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.3rem;
+  }
+  .bro-box .bro-label .bro-emoji { font-size: 1rem; }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     RESULTS
+     ═══════════════════════════════════════════════════════════════════ */
+  .results { margin-top: 0.75rem; background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--bg4); }
+  .results h4 {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text3); padding: 0.6rem 1rem; border-bottom: 1px solid var(--bg4);
+  }
+  .result-row {
+    padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.8rem; border-bottom: 1px solid var(--bg3);
+  }
+  .result-row:last-child { border: none; }
+  .result-row .icon { font-size: 1rem; }
+  .result-row.pass { color: var(--green); }
+  .result-row.fail { color: var(--red); }
+  .result-row .detail { color: var(--text3); font-size: 0.72rem; }
+  .result-row .question { color: var(--text2); font-size: 0.78rem; }
+
+  .score-bar {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.6rem 1rem; font-size: 0.82rem;
+    flex-wrap: wrap;
+  }
+  .score-bar .score { color: var(--accent); font-weight: 700; }
+  .score-bar .xp-gained { color: var(--gold); }
+  .score-bar .completed-badge {
+    background: var(--green); color: #fff;
+    padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.7rem;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     ACHIEVEMENT UNLOCK POPUP
+     ═══════════════════════════════════════════════════════════════════ */
+  .achievement-popup {
+    position: fixed; top: 4rem; right: 1rem;
+    background: var(--bg3); border: 2px solid var(--gold);
+    border-radius: var(--radius); padding: 1rem 1.5rem;
+    max-width: 340px; z-index: 200;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  }
+  .achievement-popup.visible { transform: translateX(0); }
+  .achievement-popup .ach-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+  .achievement-popup .ach-title { font-weight: 700; color: var(--gold); }
+  .achievement-popup .ach-desc { font-size: 0.78rem; color: var(--text2); }
+  .achievement-popup .ach-xp { color: var(--green); font-size: 0.72rem; margin-top: 0.3rem; }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     LEVEL UP POPUP
+     ═══════════════════════════════════════════════════════════════════ */
+  .levelup-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 300;
+    align-items: center; justify-content: center;
+  }
+  .levelup-overlay.visible { display: flex; }
+  .levelup-card {
+    background: var(--bg3); border: 3px solid var(--gold);
+    border-radius: 16px; padding: 2rem; text-align: center;
+    max-width: 400px;
+  }
+  .levelup-card .lvl-icon { font-size: 3rem; }
+  .levelup-card h2 { font-size: 1.5rem; color: var(--gold); margin: 0.5rem 0; }
+  .levelup-card p { color: var(--text2); font-size: 0.9rem; }
+  .levelup-card button {
+    margin-top: 1.5rem; padding: 0.6rem 2rem;
+    background: var(--accent2); color: #fff; border: none;
+    border-radius: 8px; font-weight: 700; cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     MODALS
+     ═══════════════════════════════════════════════════════════════════ */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-card {
+    background: var(--bg2); border: 1px solid var(--bg4);
+    border-radius: 12px; padding: 1.5rem 2rem;
+    max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
+  }
+  .modal-card h2 { margin-bottom: 1rem; color: var(--accent); }
+  .modal-card .stat-row {
+    display: flex; justify-content: space-between; padding: 0.4rem 0;
+    border-bottom: 1px solid var(--bg3); font-size: 0.85rem;
+  }
+  .modal-card .close-btn {
+    margin-top: 1.2rem; width: 100%;
+    background: var(--accent2); color: #fff;
+    border: none; padding: 0.5rem; border-radius: 8px;
+    font-weight: 600; cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     SETTINGS PANEL
+     ═══════════════════════════════════════════════════════════════════ */
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.5rem 0; border-bottom: 1px solid var(--bg3);
+  }
+  .setting-row label { font-size: 0.85rem; }
+  .setting-row select, .setting-row input[type="number"] {
+    background: var(--bg4); color: var(--text); border: 1px solid var(--bg3);
+    padding: 0.25rem 0.5rem; border-radius: 6px;
+  }
+  .toggle { position: relative; width: 40px; height: 22px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle .slider {
+    position: absolute; inset: 0; background: var(--bg4); border-radius: 11px;
+    cursor: pointer; transition: 0.3s;
+  }
+  .toggle .slider::after {
+    content: ''; position: absolute; width: 18px; height: 18px;
+    left: 2px; top: 2px; background: var(--text); border-radius: 50%;
+    transition: 0.3s;
+  }
+  .toggle input:checked + .slider { background: var(--accent2); }
+  .toggle input:checked + .slider::after { transform: translateX(18px); }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     ACCESSIBILITY
+     ═══════════════════════════════════════════════════════════════════ */
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════════════════════════════ */
+  @media (max-width: 720px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--bg4); max-height: 180px; }
+    .main { padding: 0.75rem; }
+    .achievement-popup { left: 0.5rem; right: 0.5rem; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<h1 class="sr-only">Simul8r4BroKahmf — Learn to Code with Bro KAHMF</h1>
+
+<!-- ═══ HEADER ═════════════════════════════════════════════════════ -->
+<header role="banner">
+  <span class="logo">⚡ simul8r4brokahmf <small>v2</small></span>
+  <div class="player-tag" id="playerTag">
+    <span class="level-badge" id="lvlBadge">Lv.1</span>
+    <span class="title-tag" id="titleTag">👶 Script Kiddie</span>
+    <span class="streak-tag" id="streakTag">🔥 0 day</span>
+    <div class="xp-bar-container" aria-label="XP progress">
+      <div class="xp-bar" id="xpBar" style="width:0%"></div>
+    </div>
+    <button class="ctrl-btn" onclick="openModal('progressModal')" aria-label="View progress">📊</button>
+    <button class="ctrl-btn" onclick="openModal('settingsModal')" aria-label="Settings">⚙️</button>
+    <button class="ctrl-btn" onclick="openModal('achievementsModal')" aria-label="Achievements">🏅</button>
+  </div>
+</header>
+
+<!-- ═══ CONTAINER ══════════════════════════════════════════════════ -->
+<div class="container">
+  <!-- Sidebar -->
+  <nav class="sidebar" aria-label="Lesson navigation">
+    <h2>📚 Tracks</h2>
+    <div class="tab-bar" id="trackTabs" role="tablist"></div>
+    <div id="lessonList" role="tabpanel"></div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main" role="main">
+    <div class="lesson-header" id="lessonHeader">
+      <div class="track-tag" id="lessonTrack"></div>
+      <h3 id="lessonTitle">Pick a lesson!</h3>
+      <div class="desc" id="lessonDesc">Select something from the sidebar, let's get coding! 🚀</div>
+    </div>
+
+    <!-- Language selector -->
+    <div class="lang-selector" id="langSelector" role="radiogroup" aria-label="Programming language"></div>
+
+    <!-- Editor -->
+    <div class="editor-wrap">
+      <textarea id="codeEditor" spellcheck="false"
+        placeholder="Write your code here..." aria-label="Code editor"
+        autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+      <div class="actions">
+        <button class="btn-submit" id="submitBtn" onclick="submitCode()">
+          ▶ Run &amp; Submit
+        </button>
+        <button class="btn-hint" id="hintBtn" onclick="getHint()">💡 Hint</button>
+        <button class="btn-reset" onclick="resetCode()">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- Bro message -->
+    <div class="bro-box" id="broBox" role="status" aria-live="polite">
+      <div class="bro-label"><span class="bro-emoji">🤙</span> Bro KAHMF says:</div>
+      <div id="broText"></div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="resultsBox" style="display:none;" role="region" aria-live="polite">
+      <h4>Test Results</h4>
+      <div id="resultsBody"></div>
+      <div class="score-bar" id="scoreBar">
+        <span class="score" id="scoreDisplay">Score: 0</span>
+        <span class="xp-gained" id="xpDisplay"></span>
+        <span id="completedBadge"></span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══ ACHIEVEMENT POPUP ═════════════════════════════════════════ -->
+<div class="achievement-popup" id="achievementPopup" role="alert">
+  <div class="ach-icon" id="achIcon">🏆</div>
+  <div class="ach-title" id="achTitle">Achievement Unlocked!</div>
+  <div class="ach-desc" id="achDesc"></div>
+  <div class="ach-xp" id="achXP">+0 XP</div>
+</div>
+
+<!-- ═══ LEVEL UP ══════════════════════════════════════════════════ -->
+<div class="levelup-overlay" id="levelupOverlay" role="dialog" aria-modal="true">
+  <div class="levelup-card">
+    <div class="lvl-icon">⬆️</div>
+    <h2 id="lvlupTitle">LEVEL UP!</h2>
+    <p id="lvlupDesc">You're now level 2! Keep going!</p>
+    <button onclick="document.getElementById('levelupOverlay').classList.remove('visible')">LET'S GO! 🔥</button>
+  </div>
+</div>
+
+<!-- ═══ PROGRESS MODAL ════════════════════════════════════════════ -->
+<div class="modal-overlay" id="progressModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h2>📊 Progress Report</h2>
+    <div id="progressStats"></div>
+    <button class="close-btn" onclick="closeModal('progressModal')">Close</button>
+  </div>
+</div>
+
+<!-- ═══ ACHIEVEMENTS MODAL ════════════════════════════════════════ -->
+<div class="modal-overlay" id="achievementsModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h2>🏅 Achievements</h2>
+    <div id="achievementsList"></div>
+    <button class="close-btn" onclick="closeModal('achievementsModal')">Close</button>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS MODAL ════════════════════════════════════════════ -->
+<div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h2>⚙️ Settings</h2>
+    <div class="setting-row">
+      <label for="themeSelect">Theme</label>
+      <select id="themeSelect" onchange="setTheme(this.value)">
+        <option value="dark">Dark (default)</option>
+        <option value="light">Light</option>
+        <option value="highcontrast">High Contrast</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label for="fontSize">Font Size</label>
+      <input type="number" id="fontSize" value="14" min="10" max="28" onchange="setFontSize(this.value)">
+    </div>
+    <div class="setting-row">
+      <label for="reduceMotion">Reduce Motion</label>
+      <label class="toggle">
+        <input type="checkbox" id="reduceMotion" onchange="setReduceMotion(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <label for="soundToggle">Sound Effects</label>
+      <label class="toggle">
+        <input type="checkbox" id="soundToggle" checked onchange="setSound(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <label for="highContrast">High Contrast</label>
+      <label class="toggle">
+        <input type="checkbox" id="highContrast" onchange="setHighContrast(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <button class="close-btn" onclick="closeModal('settingsModal')">Close</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════════════ */
+let PLAYER_ID = localStorage.getItem('sim_player') || '';
+let CURRENT_LESSON = null;
+let LESSONS = [];
+let TRACKS = [];
+let CURRENT_TRACK = null;
+let SELECTED_LANG = 'python';
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SOUND ENGINE (Web Audio API)
+   ═══════════════════════════════════════════════════════════════════════ */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function playSound(type) {
+  if (!document.getElementById('soundToggle').checked) return;
+  try {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+
+    switch (type) {
+      case 'success':
+        osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.35);
+        break;
+      case 'fail':
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.15);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.3);
+        break;
+      case 'levelup':
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(554, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.3);
+        osc.frequency.setValueAtTime(1047, audioCtx.currentTime + 0.45);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.6);
+        break;
+      case 'achievement':
+        osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+        osc.frequency.setValueAtTime(1047, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.5);
+        break;
+      case 'hint':
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.15);
+        break;
+    }
+  } catch(e) { /* Audio not available, that's fine */ }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════════════ */
+async function init() {
+  // Create/get player
+  const url = '/api/player' + (PLAYER_ID ? `?player_id=${PLAYER_ID}` : '');
+  const res = await fetch(url);
+  const data = await res.json();
+  PLAYER_ID = data.player_id;
+  localStorage.setItem('sim_player', PLAYER_ID);
+
+  // Load settings
+  if (data.settings) {
+    applySettings(data.settings);
+  }
+
+  // Load tracks & lessons
+  const [tracksRes, lessonsRes] = await Promise.all([
+    fetch('/api/tracks'),
+    fetch('/api/lessons'),
+  ]);
+  TRACKS = await tracksRes.json();
+  LESSONS = await lessonsRes.json();
+
+  renderTracks();
+  if (TRACKS.length) selectTrack(TRACKS[0].name);
+
+  // Update player info
+  updatePlayerInfo();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TRACKS & LESSONS
+   ═══════════════════════════════════════════════════════════════════════ */
+function renderTracks() {
+  const container = document.getElementById('trackTabs');
+  container.innerHTML = '';
+  TRACKS.forEach(t => {
+    const btn = document.createElement('button');
+    btn.dataset.track = t.name;
+    btn.textContent = t.icon + ' ' + t.name.split(' ').slice(1).join(' ');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', 'false');
+    btn.addEventListener('click', () => selectTrack(t.name));
+    container.appendChild(btn);
+  });
+}
+
+function selectTrack(trackName) {
+  CURRENT_TRACK = trackName;
+  document.querySelectorAll('#trackTabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.track === trackName);
+    b.setAttribute('aria-selected', b.dataset.track === trackName ? 'true' : 'false');
+  });
+
+  const track = TRACKS.find(t => t.name === trackName);
+  const filtered = LESSONS.filter(l => l.track === trackName);
+  renderLessonList(filtered, track);
+  if (filtered.length) selectLesson(filtered[0].id);
+}
+
+function renderLessonList(lessons, track) {
+  const container = document.getElementById('lessonList');
+  container.innerHTML = '';
+  if (track) {
+    const desc = document.createElement('div');
+    desc.style.cssText = 'font-size:0.7rem;color:var(--text3);padding:0 1rem 0.5rem;';
+    desc.textContent = track.description;
+    container.appendChild(desc);
+  }
+  lessons.forEach(l => {
+    const div = document.createElement('div');
+    div.className = 'lesson-item';
+    div.dataset.id = l.id;
+    div.innerHTML = `
+      <span class="li-type">${l.type}</span>
+      <span class="li-title">${l.title}</span>
+      <span class="li-status" id="status-${l.id}">${l.type === 'quiz' ? '?' : '·'}</span>
+    `;
+    div.addEventListener('click', () => selectLesson(l.id));
+    container.appendChild(div);
+  });
+}
+
+async function selectLesson(id) {
+  CURRENT_LESSON = id;
+  document.querySelectorAll('.lesson-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.id === id));
+
+  const res = await fetch(`/api/lessons/${id}`);
+  const lesson = await res.json();
+
+  document.getElementById('lessonTrack').textContent = lesson.track;
+  document.getElementById('lessonTitle').textContent = lesson.title;
+  document.getElementById('lessonDesc').textContent = lesson.description;
+
+  // Language selector
+  const langContainer = document.getElementById('langSelector');
+  langContainer.innerHTML = '';
+  const langs = lesson.languages || ['python'];
+  SELECTED_LANG = langs[0];
+  langs.forEach(lang => {
+    const btn = document.createElement('button');
+    btn.dataset.lang = lang;
+    btn.textContent = {python: '🐍 Python', javascript: '🟨 JS', pseudocode: '📝 Pseudo'}[lang] || lang;
+    btn.classList.toggle('active', lang === SELECTED_LANG);
+    btn.setAttribute('role', 'radio');
+    btn.setAttribute('aria-checked', lang === SELECTED_LANG ? 'true' : 'false');
+    btn.addEventListener('click', () => selectLanguage(lang));
+    langContainer.appendChild(btn);
+  });
+
+  // Load code
+  const saved = localStorage.getItem(`code_${PLAYER_ID}_${id}_${SELECTED_LANG}`);
+  const starter = lesson.starter_code;
+  let code = saved;
+  if (!code) {
+    code = typeof starter === 'string' ? starter : (starter?.[SELECTED_LANG] || starter?.python || '');
+  }
+  document.getElementById('codeEditor').value = code;
+
+  // Reset UI
+  document.getElementById('resultsBox').style.display = 'none';
+  document.getElementById('broBox').classList.remove('visible');
+  document.getElementById('hintBtn').disabled = false;
+  document.getElementById('submitBtn').disabled = false;
+}
+
+function selectLanguage(lang) {
+  SELECTED_LANG = lang;
+  document.querySelectorAll('#langSelector button').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+    b.setAttribute('aria-checked', b.dataset.lang === lang ? 'true' : 'false');
+  });
+
+  // Save current code & load language-specific code
+  if (CURRENT_LESSON) {
+    const editor = document.getElementById('codeEditor');
+    localStorage.setItem(`code_${PLAYER_ID}_${CURRENT_LESSON}_${SELECTED_LANG}`, editor.value);
+
+    // Load starter for this language if no saved code
+    fetch(`/api/lessons/${CURRENT_LESSON}`).then(r => r.json()).then(lesson => {
+      const saved = localStorage.getItem(`code_${PLAYER_ID}_${CURRENT_LESSON}_${SELECTED_LANG}`);
+      const starter = lesson.starter_code;
+      editor.value = saved || (typeof starter === 'string' ? starter : (starter?.[SELECTED_LANG] || ''));
+    });
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SUBMIT
+   ═══════════════════════════════════════════════════════════════════════ */
+async function submitCode() {
+  if (!CURRENT_LESSON) return;
+  const btn = document.getElementById('submitBtn');
+  btn.innerHTML = '<span class="loading" style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;"></span> Running...';
+  btn.disabled = true;
+
+  const code = document.getElementById('codeEditor').value;
+  localStorage.setItem(`code_${PLAYER_ID}_${CURRENT_LESSON}_${SELECTED_LANG}`, code);
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        player_id: PLAYER_ID,
+        lesson_id: CURRENT_LESSON,
+        code: code,
+        language: SELECTED_LANG,
+      }),
+    });
+    const data = await res.json();
+
+    // Results
+    const body = document.getElementById('resultsBody');
+    body.innerHTML = '';
+    data.results.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.className = 'result-row ' + (r.passed ? 'pass' : 'fail');
+      const detail = r.error
+        ? r.error
+        : `expected ${JSON.stringify(r.expected)}, got ${JSON.stringify(r.actual)}`;
+      const question = r.question ? `<span class="question">${r.question}</span>` : '';
+      row.innerHTML = `
+        <span class="icon">${r.passed ? '✅' : '❌'}</span>
+        <span><strong>Test ${i+1}</strong>: ${r.passed ? 'PASS' : 'FAIL'}</span>
+        ${question}
+        <span class="detail">${r.passed ? '' : detail}</span>
+      `;
+      body.appendChild(row);
+    });
+
+    document.getElementById('scoreDisplay').textContent = `Score: ${data.score_this_attempt}`;
+    document.getElementById('xpDisplay').textContent = data.xp_gained ? `+${data.xp_gained} XP` : '';
+    document.getElementById('completedBadge').innerHTML = data.completed
+      ? '<span class="completed-badge">✓ COMPLETED</span>' : '';
+    document.getElementById('resultsBox').style.display = 'block';
+
+    // Bro message
+    const broBox = document.getElementById('broBox');
+    document.getElementById('broText').textContent = data.bro_message || '';
+    broBox.classList.add('visible');
+
+    // Update sidebar status
+    const statusEl = document.getElementById(`status-${CURRENT_LESSON}`);
+    if (statusEl) {
+      statusEl.className = 'li-status ' + (data.completed ? 'done' : 'attempt');
+      statusEl.textContent = data.completed ? '✓' : '!';
+    }
+
+    // Sound
+    if (data.all_passed) playSound('success');
+    else if (data.score_this_attempt > 0) playSound('success');
+    else playSound('fail');
+
+    // Level up!
+    if (data.level_up_message) {
+      document.getElementById('lvlupTitle').textContent = `⬆️ LEVEL ${data.player.level}!`;
+      document.getElementById('lvlupDesc').textContent = data.level_up_message;
+      document.getElementById('levelupOverlay').classList.add('visible');
+      playSound('levelup');
+    }
+
+    // Achievement popups (one at a time, with delay)
+    const achievements = data.new_achievements || [];
+    achievements.forEach((ach, i) => {
+      setTimeout(() => {
+        document.getElementById('achIcon').textContent = ach.icon;
+        document.getElementById('achTitle').textContent = `🏅 ${ach.name}`;
+        document.getElementById('achDesc').textContent = ach.description;
+        document.getElementById('achXP').textContent = `+${ach.xp_reward} XP`;
+        document.getElementById('achievementPopup').classList.add('visible');
+        playSound('achievement');
+        setTimeout(() => {
+          document.getElementById('achievementPopup').classList.remove('visible');
+        }, 3000);
+      }, i * 3500);
+    });
+
+    // Update player info
+    updatePlayerInfo(data.player);
+
+  } catch (e) {
+    document.getElementById('broBox').classList.add('visible');
+    document.getElementById('broText').textContent = `😅 Error: ${e.message}. Try again!`;
+  } finally {
+    btn.innerHTML = '▶ Run & Submit';
+    btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HINTS
+   ═══════════════════════════════════════════════════════════════════════ */
+async function getHint() {
+  if (!CURRENT_LESSON) return;
+  document.getElementById('hintBtn').disabled = true;
+
+  const res = await fetch(`/api/hint/${CURRENT_LESSON}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ player_id: PLAYER_ID }),
+  });
+  const data = await res.json();
+
+  document.getElementById('broBox').classList.add('visible');
+  document.getElementById('broText').innerHTML =
+    `<strong>💡 Hint ${data.hint_number}/${data.total_hints}:</strong> ${data.hint}`;
+  playSound('hint');
+
+  if (data.hint_number < data.total_hints) {
+    document.getElementById('hintBtn').disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESET
+   ═══════════════════════════════════════════════════════════════════════ */
+function resetCode() {
+  if (!CURRENT_LESSON) return;
+  fetch(`/api/lessons/${CURRENT_LESSON}`).then(r => r.json()).then(lesson => {
+    const starter = lesson.starter_code;
+    const code = typeof starter === 'string' ? starter : (starter?.[SELECTED_LANG] || '');
+    document.getElementById('codeEditor').value = code;
+    localStorage.setItem(`code_${PLAYER_ID}_${CURRENT_LESSON}_${SELECTED_LANG}`, code);
+    document.getElementById('resultsBox').style.display = 'none';
+    document.getElementById('broBox').classList.remove('visible');
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PLAYER INFO
+   ═══════════════════════════════════════════════════════════════════════ */
+async function updatePlayerInfo(playerData) {
+  if (playerData) {
+    document.getElementById('lvlBadge').textContent = `Lv.${playerData.level}`;
+    document.getElementById('titleTag').textContent = `${playerData.title_emoji} ${playerData.title}`;
+    document.getElementById('streakTag').innerHTML = `🔥 ${playerData.streak} day${playerData.streak !== 1 ? 's' : ''}`;
+    document.getElementById('xpBar').style.width = `${Math.min(100, (playerData.xp % 100))}%`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/player/${PLAYER_ID}`);
+    const p = await res.json();
+    document.getElementById('lvlBadge').textContent = `Lv.${p.level}`;
+    document.getElementById('titleTag').textContent = `${p.title_emoji} ${p.title}`;
+    document.getElementById('streakTag').innerHTML = `🔥 ${p.streak} day${p.streak !== 1 ? 's' : ''}`;
+    document.getElementById('xpBar').style.width = `${Math.min(100, (p.xp % 100))}%`;
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MODALS
+   ═══════════════════════════════════════════════════════════════════════ */
+function openModal(id) {
+  const modal = document.getElementById(id);
+  modal.classList.add('visible');
+  if (id === 'progressModal') loadProgress();
+  if (id === 'achievementsModal') loadAchievements();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+
+async function loadProgress() {
+  try {
+    const res = await fetch(`/api/summary/${PLAYER_ID}`);
+    const data = await res.json();
+    let html = `
+      <div class="stat-row"><span>👤 Player</span><span>${data.player_id}</span></div>
+      <div class="stat-row"><span>⭐ Level</span><span>${data.level} — ${data.title} ${data.title_emoji}</span></div>
+      <div class="stat-row"><span>💎 XP</span><span>${data.xp}</span></div>
+      <div class="stat-row"><span>🔥 Streak</span><span>${data.streak} day${data.streak !== 1 ? 's' : ''}</span></div>
+      <div class="stat-row"><span>📚 Lessons Attempted</span><span>${data.lessons_attempted}</span></div>
+      <div class="stat-row"><span>✅ Lessons Completed</span><span>${data.lessons_completed}</span></div>
+      <div class="stat-row"><span>🏅 Score</span><span>${data.total_score}</span></div>
+      <div class="stat-row"><span>🗣️ Languages Used</span><span>${data.languages_used.join(', ') || 'None yet'}</span></div>
+      <div class="stat-row"><span>🏅 Achievements</span><span>${data.achievements_count}</span></div>
+    `;
+    if (data.lesson_details) {
+      html += '<h3 style="margin-top:1rem;font-size:0.85rem;color:var(--accent);">Lesson Breakdown</h3>';
+      data.lesson_details.forEach(l => {
+        html += `<div class="stat-row" style="font-size:0.75rem;">
+          <span>${l.completed ? '✅' : (l.attempts > 0 ? '🔄' : '⬜')} ${l.title}</span>
+          <span>Best: ${l.best_score} | Attempts: ${l.attempts}</span>
+        </div>`;
+      });
+    }
+    document.getElementById('progressStats').innerHTML = html;
+  } catch(e) {
+    document.getElementById('progressStats').innerHTML = '<p>Could not load progress.</p>';
+  }
+}
+
+async function loadAchievements() {
+  try {
+    const res = await fetch(`/api/summary/${PLAYER_ID}`);
+    const data = await res.json();
+    // For now, show a placeholder - full achievement list could come from API
+    const count = data.achievements_count || 0;
+    document.getElementById('achievementsList').innerHTML = `
+      <p style="text-align:center;padding:1rem;color:var(--text2);">
+        ${count === 0
+          ? '😴 No achievements yet. Start coding to earn some!'
+          : `🏅 You've unlocked ${count} achievement${count !== 1 ? 's' : ''}! Keep going!`}
+      </p>
+    `;
+  } catch(e) {
+    document.getElementById('achievementsList').innerHTML = '<p>Could not load achievements.</p>';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SETTINGS
+   ═══════════════════════════════════════════════════════════════════════ */
+function applySettings(settings) {
+  if (settings.theme) document.documentElement.setAttribute('data-theme', settings.theme);
+  if (settings.font_size) {
+    document.documentElement.style.setProperty('--font-size', settings.font_size + 'px');
+    document.getElementById('fontSize').value = settings.font_size;
+  }
+  if (settings.reduce_motion) {
+    document.documentElement.setAttribute('data-reduce-motion', 'true');
+    document.getElementById('reduceMotion').checked = true;
+  }
+  if (settings.high_contrast) {
+    document.documentElement.setAttribute('data-theme', 'highcontrast');
+    document.getElementById('themeSelect').value = 'highcontrast';
+    document.getElementById('highContrast').checked = true;
+  }
+}
+
+function setTheme(val) {
+  document.documentElement.setAttribute('data-theme', val);
+  saveSetting('theme', val);
+}
+
+function setFontSize(val) {
+  document.documentElement.style.setProperty('--font-size', val + 'px');
+  saveSetting('font_size', parseInt(val));
+}
+
+function setReduceMotion(val) {
+  document.documentElement.setAttribute('data-reduce-motion', val ? 'true' : 'false');
+  saveSetting('reduce_motion', val);
+}
+
+function setSound(val) {
+  saveSetting('sound_enabled', val);
+}
+
+function setHighContrast(val) {
+  if (val) {
+    document.documentElement.setAttribute('data-theme', 'highcontrast');
+    document.getElementById('themeSelect').value = 'highcontrast';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeSelect').value = 'dark';
+  }
+  saveSetting('high_contrast', val);
+}
+
+function saveSetting(key, value) {
+  fetch(`/api/player/${PLAYER_ID}/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ [key]: value }),
+  }).catch(() => {});
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+   ═══════════════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + Enter = Submit
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    submitCode();
+  }
+  // Escape = close modals
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.visible, .levelup-overlay.visible').forEach(el => {
+      el.classList.remove('visible');
+    });
+  }
+});
+
+// ── Boot ────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

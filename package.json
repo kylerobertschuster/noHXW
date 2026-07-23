@@ -1,0 +1,8 @@
+{
+  "name": "simul8r4brokahmf",
+  "version": "1.0.0",
+  "description": "Interactive Python coding lab platform — Simulator for bro KAHMF",
+  "scripts": {
+    "start": "uvicorn app.main:app --reload --port 3000"
+  }
+}

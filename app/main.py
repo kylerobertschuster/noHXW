@@ -19,7 +19,7 @@ from .achievements import check_achievements, get_title, xp_for_level, BRO_MESSA
 from .languages import get_language_config
 import random
 
-app = FastAPI(title="simul8r4brokahmf", version="2.0.0", docs_url="/docs")
+app = FastAPI(title="noHXW — No Hardware, No Problem", version="2.0.0", docs_url="/docs")
 
 app.add_middleware(
     CORSMiddleware,

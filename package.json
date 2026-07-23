@@ -1,7 +1,7 @@
 {
-  "name": "simul8r4brokahmf",
+  "name": "noHXW",
   "version": "1.0.0",
-  "description": "Interactive Python coding lab platform — Simulator for bro KAHMF",
+  "description": "noHXW — No Hardware, No Problem. Distributed Infrastructure Simulation Engine.",
   "scripts": {
     "start": "uvicorn app.main:app --reload --port 3000"
   }

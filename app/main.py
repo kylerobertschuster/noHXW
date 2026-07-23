@@ -15,7 +15,7 @@ from typing import Optional
 from .lab_injector import get_all_lessons, get_lesson, get_tracks, get_random_wisdom
 from .executor import run_test, get_function_name
 from .state import get_or_create_player, get_player
-from .achievements import check_achievements, get_title, xp_for_level, BRO_MESSAGES
+from .achievements import check_achievements, get_title, get_level_up_message, xp_for_level, BRO_MESSAGES
 from .languages import get_language_config
 import random
 
@@ -184,9 +184,7 @@ async def submit_code(payload: SubmitPayload):
     level_up_msg = None
     if leveled_up:
         title = get_title(player.level)
-        level_up_msg = random.choice(BRO_MESSAGES["level_up"]).format(
-            level=player.level, title=title["title"]
-        )
+        level_up_msg = get_level_up_message(player.level, title["title"], title["emoji"])
 
     # Streak message
     streak_msg = None

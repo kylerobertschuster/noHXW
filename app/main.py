@@ -197,7 +197,7 @@ async def submit_code(payload: SubmitPayload):
     achievement_messages = []
     for ach in new_achievements:
         msg = random.choice(BRO_MESSAGES["achievement"]).format(
-            name=ach["name"], xp=ach["xp_reward"]
+            name=ach["name"], icon=ach["icon"], xp=ach["xp_reward"]
         )
         achievement_messages.append({
             "id": ach["id"],

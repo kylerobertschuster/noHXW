@@ -72,38 +72,48 @@ Every level unlocks a new title with a corresponding message celebrating your gr
 
 ## 🚀 Quick Start
 
-### Option 1: Install as a pip package (recommended)
+### 🏆 Option 1: Bootstrap (no pip required!)
+
+Works even if you don't have `pip` installed. This script uses Python's
+built-in `ensurepip` to bootstrap everything:
+
 ```bash
-# Clone the repo
 git clone https://github.com/kylerobertschuster/noHXW.git
 cd noHXW
 
-# Install noHXW (makes the `noxhw` CLI available)
-pip install -e .
+# macOS / Linux
+chmod +x setup.sh && ./setup.sh
 
-# Start the server
+# Windows
+double-click setup.bat
+# or: setup.bat
+```
+
+### 📦 Option 2: pip install
+```bash
+pip install -e .
 noxhw
 ```
 
-### Option 2: Lightweight (dependencies only)
+### 🐍 Option 3: Virtual environment
 ```bash
-pip install -r requirements.txt
-uvicorn app.main:app --port 3000
+python3 -m venv .venv
+.venv/bin/pip install -e .
+.venv/bin/noxhw
 ```
 
-### Option 3: Using Make
+### ⚡ Option 4: Make
 ```bash
-make install   # pip install -e .
-make run       # noxhw (starts server)
+make setup   # bootstrap (same as setup.sh)
+make run     # start server
 ```
 
-### Option 4: npm
+### 🚀 Option 5: npm
 ```bash
-npm install
 npm start
 ```
 
-Then open **http://localhost:3000** in your browser.
+All methods start the server on **http://localhost:3000**.
 
 ---
 

@@ -322,3 +322,15 @@ async def get_summary(player_id: str):
 
     summary["lesson_details"] = lesson_details
     return summary
+
+
+# ── CLI Entry Point ────────────────────────────────────────────────────
+
+def start():
+    """Entry point for `noxhw` CLI command (installed via pip)."""
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=3000, reload=False)
+
+
+if __name__ == "__main__":
+    start()

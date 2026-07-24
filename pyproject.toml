@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noHXW"
+version = "1.0.0"
+description = "noHXW — No Hardware, No Problem. Distributed Infrastructure Simulation Engine"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.scripts]
+noxhw = "app.main:start"
+
+[tool.setuptools.packages.find]
+include = ["app*"]

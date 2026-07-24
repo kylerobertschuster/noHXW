@@ -1,0 +1,2 @@
+[console_scripts]
+noxhw = app.main:start

@@ -1,3 +1,14 @@
+Metadata-Version: 2.4
+Name: noHXW
+Version: 1.0.0
+Summary: noHXW — No Hardware, No Problem. Distributed Infrastructure Simulation Engine
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.100.0
+Requires-Dist: uvicorn>=0.20.0
+Requires-Dist: python-multipart>=0.0.6
+Dynamic: requires-python
+
 ```
 ███╗   ██╗ ██████╗ ██╗  ██╗██╗  ██╗██╗    ██╗
 ████╗  ██║██╔═══██╗██║  ██║╚██╗██╔╝██║    ██║
